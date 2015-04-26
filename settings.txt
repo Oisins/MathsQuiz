@@ -1,0 +1,3 @@
+#Settings for the Maths Quiz
+#ONLY replace with on or off
+Leaderboard = on

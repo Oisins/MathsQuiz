@@ -44,7 +44,7 @@ def text(text, x, y, fontsize, color):
     textRectObj.center = x, y
     DISPLAYSURF.blit(textSurfaceObj, textRectObj)
 
-def button(text, color, x, y, hight, width, FONTSIZE = 20):
+'''def button(text, color, x, y, hight, width, FONTSIZE = 20):
     fontObj = pygame.font.Font('freesansbold.ttf', FONTSIZE)
     button = pygame.draw.rect(DISPLAYSURF, color, (x, y, width, hight))
     button.topleft = (x, y)
@@ -52,9 +52,22 @@ def button(text, color, x, y, hight, width, FONTSIZE = 20):
     textRectObj = textSurfaceObj.get_rect()
     textRectObj.center = button.center
     DISPLAYSURF.blit(textSurfaceObj, textRectObj)
-    return button
+    return button'''
 
-class introScreen():
+class button:
+    def __init__(self, text, color, x, y, hight, width, FONTSIZE = 20):
+        self.text, self.color, self.x, self.y, self.hight, self.width = text, color, x, y, hight, width
+        self.fontObj = pygame.font.Font('freesansbold.ttf', FONTSIZE)
+        self.obj = None
+    def update(self):
+        self.obj = pygame.draw.rect(DISPLAYSURF, self.color, (self.x, self.y, self.width, self.hight))
+        self.obj.topleft = (self.x, self.y)
+        self.textSurfaceObj = self.fontObj.render(str(self.text), True, BLACK, self.color)
+        self.textRectObj = self.textSurfaceObj.get_rect()
+        self.textRectObj.center = self.obj.center
+        DISPLAYSURF.blit(self.textSurfaceObj, self.textRectObj)
+
+class introScreen:
     def __init__(self):
         self.buttons = {}
         #Font Setup
@@ -66,6 +79,10 @@ class introScreen():
         self.lb = self.lbfont.render('Leaderboard', True, WHITE, BLACK)
         self.lbrect = self.lb.get_rect()
         self.lbrect.center = WINDOWWIDTH - 62, 130
+
+        self.buttons["diff1"] = button('1', GREEN, WINDOWWIDTH / 2 - 70, WINDOWHEIGHT / 2 + 50, 50, 50, 20)
+        self.buttons["diff2"] = button('2', YELLOW, WINDOWWIDTH / 2, WINDOWHEIGHT / 2 + 50, 50, 50, 20)
+        self.buttons["diff3"] = button('3', RED, WINDOWWIDTH / 2 + 70, WINDOWHEIGHT / 2 + 50, 50, 50, 20)
     def update(self):
         DISPLAYSURF.blit(self.trophy, (WINDOWWIDTH - 110, 10))
         DISPLAYSURF.blit(self.lb, self.lbrect)
@@ -74,20 +91,20 @@ class introScreen():
         text('You will get 5 questions in addition, subtraction and multiplication.', WINDOWWIDTH / 2, WINDOWHEIGHT / 2, 15, WHITE)
         text('What difficulty do you want?', WINDOWWIDTH / 2, WINDOWHEIGHT / 2 + 25, 15, WHITE)
         #Add Difficulty buttons
-        self.buttons["diff1"] = button('1', GREEN, WINDOWWIDTH / 2 - 70, WINDOWHEIGHT / 2 + 50, 50, 50, 20)
-        self.buttons["diff2"] = button('2', YELLOW, WINDOWWIDTH / 2, WINDOWHEIGHT / 2 + 50, 50, 50, 20)
-        self.buttons["diff3"] = button('3', RED, WINDOWWIDTH / 2 + 70, WINDOWHEIGHT / 2 + 50, 50, 50, 20)
+        self.buttons["diff1"].update()
+        self.buttons["diff2"].update()
+        self.buttons["diff3"].update()
 
     def mouseUp(self, pos):
         global difficulty
         #Check what difficulty user wants
-        if self.buttons["diff1"].collidepoint(pos):
+        if self.buttons["diff1"].obj.collidepoint(pos):
             difficulty = 1
             gameloop.setScreen("nameSelect")
-        elif self.buttons["diff2"].collidepoint(pos):
+        elif self.buttons["diff2"].obj.collidepoint(pos):
             difficulty = 2
             gameloop.setScreen("nameSelect")
-        elif self.buttons["diff3"].collidepoint(pos):
+        elif self.buttons["diff3"].obj.collidepoint(pos):
             difficulty = 3
             gameloop.setScreen("nameSelect")
         elif self.leaderboard.collidepoint(pos):

@@ -27,7 +27,7 @@ ticktodo = 0
 at = 'plus'
 points, pointsmine, pointsplus, pointstimes = 0, 0, 0, 0
 nameinput, score, names, inputs = [], [], [], []'''
-currentScreen = "introScreen"
+currentScreen = "configScreen"
 name = ""
 difficulty = 1
 points = [0,0,0,0]
@@ -66,6 +66,8 @@ class button:
         self.textRectObj = self.textSurfaceObj.get_rect()
         self.textRectObj.center = self.obj.center
         DISPLAYSURF.blit(self.textSurfaceObj, self.textRectObj)
+    def setColor(self, color):
+        self.color = color
 
 class introScreen:
     def __init__(self):
@@ -206,8 +208,8 @@ class askQuestion():
                 self.operation = "-"
             elif self.qnum <= 15:
                 self.operation = "+"
-            else:
-                gameloop.setScreen("introScreen")
+            #else:
+             #   gameloop.setScreen("introScreen")
             self.num1, self.num2, self.answer = self.genQuestion(self.operation)
             
 
@@ -246,7 +248,7 @@ class leaderboard():
             DISPLAYSURF.blit(self.tmp, self.tmpb)
     def readFile(self):
         self.row = 0
-        self.doc = open('mathsquiz.data', 'r')
+        self.doc = open('settings.txt', 'r')
         self.lbcontent = self.doc.readlines()
         self.names = []
         self.score = []
@@ -256,26 +258,93 @@ class leaderboard():
                 self.score.append(int(self.row[self.eq + 1:]))
                 self.names.append(str(self.row[:self.eq - 1]))
         
-        
+class configScreen():
+    def __init__(self):
+        self.buttons = {}
+        print("init")
+        self.config = configHandler()
+        self.lb = self.config.getParameter("Leaderboard")
+        print("Var: " + str(self.lb))
+        if self.lb == "on":
+            self.lbcolor = GREEN
+        else:
+            self.lbcolor = RED
+        self.buttons["leaderboard"] = button('Leaderboard', self.lbcolor, 20, 20, 50, 200)
+        self.buttons["save"] = button('Save', YELLOW, WINDOWWIDTH / 2 - 50, WINDOWHEIGHT - 80, 60, 100)
+    def update(self):
+        self.buttons["leaderboard"].update()
+        self.buttons["save"].update()
+        text(self.config.getParameterDesc("Leaderboard"), 400, 45, 20, WHITE)
+    def keyUp(self, key):
+        pass
+    def mouseUp(self, pos):
+        if self.buttons["leaderboard"].obj.collidepoint(pos):
+            if self.lbcolor == GREEN:
+                self.lbcolor = RED
+                self.config.setParameter("Leaderboard", "off", "Disable the Leaderboard Here")
+            else:
+                self.lbcolor = GREEN
+                self.config.setParameter("Leaderboard", "on", "Disable the Leaderboard Here")
+            self.buttons["leaderboard"].setColor(self.lbcolor)
+        elif self.buttons["save"].obj.collidepoint(pos):
+            self.config.write()
+    
+class configHandler():
+    def __init__(self):
+        self.doc = None
+        self.fileLines = {}      
+        self.descLines = {}
+        self.loadFile()
+    def loadFile(self):
+        print("Loading File")
+        self.doc = open('settings.txt', 'r')
+        for self.line in self.doc.readlines():
+            self.eq = self.line.find('=')
+            self.desc = self.line.find("//")
+            
+            self.varName = str(self.line[:self.eq - 1])
+            self.varContent = str(self.line[self.eq + 1:self.desc - 1])
+            self.descLines[self.varName] = str(self.line[self.desc + 2:])
+            self.fileLines[self.varName] = self.varContent
+        print("End Load")
+    def getParameter(self, parameter):       
+        if parameter in self.fileLines:
+            self.desc = self.fileLines[parameter].find("//")
+            return self.fileLines[parameter][:self.desc - 1]
+    def getParameterDesc(self, parameter):       
+        if parameter in self.fileLines:
+            return self.descLines[parameter]
+    def setParameter(self, parameter, value, description):
+        self.fileLines[parameter] = value + " //" + description
+    def write(self):
+        self.doc = open('settings.txt', 'w')
+        self.output = ""
+        self.outputLines = []
+        for self.i in range(len(self.fileLines)):
+            self.output += self.fileLines.keys()[self.i]
+            self.output += " = "
+            self.output += self.fileLines.values()[self.i]
+        self.doc.write(self.output)
+        self.doc.close()
+        print("File Closed")
+    
 class gameLoop():
     def __init__(self):
         self.currentScreen = None
         self.hold = 0
     def setScreen(self, screen):
-        global currentScreen
-        currentScreen = screen
+        self.currentScreen = screen
     def pause(self, time):
         self.hold = time * 10
     def start(self):
         while True:
-            self.currentScreen = currentScreen
             for event in pygame.event.get():
                 if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                     terminate()
                 elif event.type == KEYUP: 
                     screens[currentScreen].keyUp(event.key) # Pass on the Event to the Current Screen
-            if event.type == MOUSEBUTTONUP:
-                screens[currentScreen].mouseUp(event.pos)
+                if event.type == MOUSEBUTTONUP:
+                    screens[currentScreen].mouseUp(event.pos)
             if self.hold == 0:
                 DISPLAYSURF.fill(BLACK)
                 screens[currentScreen].update()
@@ -290,6 +359,10 @@ class gameLoop():
             
 
 
-screens = {"leaderboard": leaderboard(), "introScreen": introScreen(), "nameSelect": nameSelect(), "askQuestion": askQuestion()}
+screens = {"leaderboard": leaderboard(),
+           "introScreen": introScreen(),
+           "nameSelect": nameSelect(),
+           "askQuestion": askQuestion(),
+           "configScreen": configScreen()}
 gameloop = gameLoop()
 gameloop.start()

@@ -74,7 +74,7 @@ class introScreen:
         self.buttons = {}
         #Font Setup
         self.leaderboard = pygame.draw.rect(DISPLAYSURF, BLACK, ((WINDOWWIDTH - 120, 0, WINDOWWIDTH - 110, 140)))
-        self.trophy = pygame.image.load('Trophy.png')
+        self.trophy = pygame.image.load('images/Trophy.png')
         self.trophy = pygame.transform.scale(self.trophy, (100, 100))
 
         self.lbfont = pygame.font.Font('freesansbold.ttf', 15)
@@ -297,7 +297,7 @@ class configHandler():
         self.loadFile()
     def loadFile(self):
         print("Loading File")
-        self.doc = open('settings.txt', 'r')
+        self.doc = open('config/settings.txt', 'r')
         for self.line in self.doc.readlines():
             self.eq = self.line.find('=')
             self.desc = self.line.find("//")

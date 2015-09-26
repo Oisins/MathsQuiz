@@ -1,1 +1,1 @@
-Leaderboard = on //Disable the Leaderboard Here
+Leaderboard = off //Disable the Leaderboard Here

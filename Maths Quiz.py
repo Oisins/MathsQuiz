@@ -19,7 +19,15 @@ RED          = (255,   0,   0)
 GREEN        = (  0, 255,   0)
 BLUE         = (  0,   0, 255)
 YELLOW       = (255, 255,   0)
-
+'''started = False
+numneednew = True
+lbedit = False
+qnum = 1
+ticktodo = 0
+at = 'plus'
+points, pointsmine, pointsplus, pointstimes = 0, 0, 0, 0
+nameinput, score, names, inputs = [], [], [], []'''
+currentScreen = "configScreen"
 name = ""
 difficulty = 1
 points = [0,0,0,0]
@@ -61,7 +69,7 @@ class button:
     def setColor(self, color):
         self.color = color
 
-class introScreen():
+class introScreen:
     def __init__(self):
         self.buttons = {}
         #Font Setup
@@ -69,18 +77,10 @@ class introScreen():
         self.trophy = pygame.image.load('images/Trophy.png')
         self.trophy = pygame.transform.scale(self.trophy, (100, 100))
 
-        self.font = pygame.font.Font('freesansbold.ttf', 15)
-        self.lb = self.font.render('Leaderboard', True, WHITE, BLACK)
+        self.lbfont = pygame.font.Font('freesansbold.ttf', 15)
+        self.lb = self.lbfont.render('Leaderboard', True, WHITE, BLACK)
         self.lbrect = self.lb.get_rect()
         self.lbrect.center = WINDOWWIDTH - 62, 130
-
-        self.setting = pygame.draw.rect(DISPLAYSURF, WHITE, ((10, 0, WINDOWWIDTH - 110, 140)))
-        self.settings = pygame.image.load('setting-icon.png')
-        self.settings = pygame.transform.scale(self.settings, (100, 100))
-
-        self.settingsText = self.font.render('Settings', True, WHITE, BLACK)
-        self.settingsRect = self.settingsText.get_rect()
-        self.settingsRect.center = 62, 130
 
         self.buttons["diff1"] = button('1', GREEN, WINDOWWIDTH / 2 - 70, WINDOWHEIGHT / 2 + 50, 50, 50, 20)
         self.buttons["diff2"] = button('2', YELLOW, WINDOWWIDTH / 2, WINDOWHEIGHT / 2 + 50, 50, 50, 20)
@@ -88,9 +88,6 @@ class introScreen():
     def update(self):
         DISPLAYSURF.blit(self.trophy, (WINDOWWIDTH - 110, 10))
         DISPLAYSURF.blit(self.lb, self.lbrect)
-
-        DISPLAYSURF.blit(self.settings, (10, 10))
-        DISPLAYSURF.blit(self.settingsText, self.settingsRect)
         #Into Text
         text('This is a maths quiz.', WINDOWWIDTH / 2, WINDOWHEIGHT / 2 - 25, 15, WHITE)
         text('You will get 5 questions in addition, subtraction and multiplication.', WINDOWWIDTH / 2, WINDOWHEIGHT / 2, 15, WHITE)
@@ -114,8 +111,6 @@ class introScreen():
             gameloop.setScreen("nameSelect")
         elif self.leaderboard.collidepoint(pos):
             gameloop.setScreen("leaderboard")
-        elif self.setting.collidepoint(pos):
-            gameloop.setScreen("configScreen")
     def keyUp(self, key):
         #No Key Events in Intro Screen
         pass
@@ -152,8 +147,8 @@ class questionGen():
     def subtraction(self):
         global difficulty
         self.num1 = random.randint(self.numGen[difficulty - 1][0], self.numGen[difficulty - 1][1])
-        self.answer = random.randint(self.numGen[difficulty - 1][0], self.numGen[difficulty - 1][1])
-        self.num2 = self.num1 + self.answer
+        self.num2 = random.randint(self.numGen[difficulty - 1][0], self.numGen[difficulty - 1][1])
+        self.answer = self.num1 + self.num2
         return self.answer, self.num1, self.answer - self.num2
         
 class askQuestion():
@@ -205,6 +200,7 @@ class askQuestion():
                 text("No it was %s not %s" %(self.answer, ''.join(self.input)), WINDOWWIDTH / 2, WINDOWHEIGHT / 2, 20, WHITE)
                 gameloop.pause(1.5)
             self.qnum += 1
+            print(self.qnum)
             self.input = []
             if self.qnum <= 5:
                 self.operation = "+"
@@ -252,7 +248,7 @@ class leaderboard():
             DISPLAYSURF.blit(self.tmp, self.tmpb)
     def readFile(self):
         self.row = 0
-        self.doc = open('mathsquiz.data', 'r')
+        self.doc = open('settings.txt', 'r')
         self.lbcontent = self.doc.readlines()
         self.names = []
         self.score = []
@@ -265,8 +261,10 @@ class leaderboard():
 class configScreen():
     def __init__(self):
         self.buttons = {}
+        print("init")
         self.config = configHandler()
         self.lb = self.config.getParameter("Leaderboard")
+        print("Var: " + str(self.lb))
         if self.lb == "on":
             self.lbcolor = GREEN
         else:
@@ -280,7 +278,6 @@ class configScreen():
     def keyUp(self, key):
         pass
     def mouseUp(self, pos):
-        #global gameloop
         if self.buttons["leaderboard"].obj.collidepoint(pos):
             if self.lbcolor == GREEN:
                 self.lbcolor = RED
@@ -291,7 +288,6 @@ class configScreen():
             self.buttons["leaderboard"].setColor(self.lbcolor)
         elif self.buttons["save"].obj.collidepoint(pos):
             self.config.write()
-            gameloop.setScreen("introScreen")
     
 class configHandler():
     def __init__(self):
@@ -301,6 +297,10 @@ class configHandler():
         self.loadFile()
     def loadFile(self):
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+        print("Loading File")
+>>>>>>> parent of f127484... Cleanup
         self.doc = open('settings.txt', 'r')
 =======
         print("Loading File")
@@ -314,6 +314,7 @@ class configHandler():
             self.varContent = str(self.line[self.eq + 1:self.desc - 1])
             self.descLines[self.varName] = str(self.line[self.desc + 2:])
             self.fileLines[self.varName] = self.varContent
+        print("End Load")
     def getParameter(self, parameter):       
         if parameter in self.fileLines:
             self.desc = self.fileLines[parameter].find("//")
@@ -333,13 +334,13 @@ class configHandler():
             self.output += self.fileLines.values()[self.i]
         self.doc.write(self.output)
         self.doc.close()
+        print("File Closed")
     
 class gameLoop():
     def __init__(self):
+        self.currentScreen = None
         self.hold = 0
-        self.currentScreen = "introScreen"
     def setScreen(self, screen):
-        assert screen in screens, "Screen '%s' dosen't exist!" %(screen)
         self.currentScreen = screen
     def pause(self, time):
         self.hold = time * 10
@@ -348,13 +349,13 @@ class gameLoop():
             for event in pygame.event.get():
                 if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                     terminate()
-                elif event.type == KEYUP:
-                    screens[self.currentScreen].keyUp(event.key) # Pass on the Event to the Current Screen
-                if event.type == MOUSEBUTTONUP:                    
-                    screens[self.currentScreen].mouseUp(event.pos)
+                elif event.type == KEYUP: 
+                    screens[currentScreen].keyUp(event.key) # Pass on the Event to the Current Screen
+                if event.type == MOUSEBUTTONUP:
+                    screens[currentScreen].mouseUp(event.pos)
             if self.hold == 0:
                 DISPLAYSURF.fill(BLACK)
-                screens[self.currentScreen].update()
+                screens[currentScreen].update()
                 fpsclock.tick(FPS) 
                 pygame.display.update()
             else:
@@ -370,7 +371,6 @@ screens = {"leaderboard": leaderboard(),
            "introScreen": introScreen(),
            "nameSelect": nameSelect(),
            "askQuestion": askQuestion(),
-           "configScreen": configScreen(),
-           }
+           "configScreen": configScreen()}
 gameloop = gameLoop()
 gameloop.start()

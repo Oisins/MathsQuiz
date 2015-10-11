@@ -1,6 +1,11 @@
 # -*- coding: cp1252 -*-
 #Setup start
-import pygame, sys, time, random, os
+import pygame
+import sys
+import time
+import random
+import os
+from definitions.color import *
 from pygame.locals import *
 
 pygame.init()
@@ -12,14 +17,14 @@ WINDOWHEIGHT = 480
 DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
 FPS = 10
 fpsclock = pygame.time.Clock()
-#                R    G    B
+'''#                R    G    B
 WHITE        = (255, 255, 255)
 BLACK        = (  0,   0,   0)
 RED          = (255,   0,   0)
 GREEN        = (  0, 255,   0)
 BLUE         = (  0,   0, 255)
 YELLOW       = (255, 255,   0)
-'''started = False
+started = False
 numneednew = True
 lbedit = False
 qnum = 1
@@ -74,7 +79,7 @@ class introScreen:
         self.buttons = {}
         #Font Setup
         self.leaderboard = pygame.draw.rect(DISPLAYSURF, BLACK, ((WINDOWWIDTH - 120, 0, WINDOWWIDTH - 110, 140)))
-        self.trophy = pygame.image.load('images/Trophy.png')
+        self.trophy = pygame.image.load('resources/trophy.png')
         self.trophy = pygame.transform.scale(self.trophy, (100, 100))
 
         self.lbfont = pygame.font.Font('freesansbold.ttf', 15)
